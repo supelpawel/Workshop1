@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class TaskManager {
@@ -82,6 +84,10 @@ public class TaskManager {
         userInput = scanner.nextLine();
         temp[1] = userInput;
         System.out.println("Is your task important: true/false");
+        while (!scanner.hasNextBoolean()) {
+            System.out.println("Incorrect data. Is your task important: true/false");
+            scanner.nextLine();
+        }
         userInput = scanner.nextLine();
         temp[2] = userInput;
         tasks = Arrays.copyOf(tasks, tasks.length + 1);
@@ -97,16 +103,16 @@ public class TaskManager {
     }
 
     public static void removeTask(Scanner scanner) {
-        String userInput;
-        int userChoice;
         System.out.println("Please select number to remove");
-        userInput = scanner.nextLine();
+        String userInput = scanner.nextLine();
+        int userChoice = 0;
         try {
-            if (NumberUtils.isParsable(userInput)) {
-                userChoice = Integer.parseInt(userInput);
+            if (NumberUtils.isParsable(userInput) && Integer.parseInt(userInput) > 0) {
+                userChoice = Integer.parseInt(userInput) - 1;
                 tasks = ArrayUtils.remove(tasks, userChoice);
             } else {
-                System.out.println("Please select correct number to remove");
+                System.out.println("Incorrect data");
+                removeTask(scanner);
             }
 
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -117,17 +123,15 @@ public class TaskManager {
 
     private static void exit(String fileName) {
         Path dir = Paths.get(fileName);
-        String[] lines = new String[tasks.length];
+        List<String> lines = new ArrayList<>();
         for (int i = 0; i < tasks.length; i++) {
-            lines[i] = String.join(", ", tasks[i]);
+            lines.add(String.join(", ", tasks[i]));
         }
         try {
-            Files.write(dir, Arrays.asList(lines));
+            Files.write(dir, lines);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(ConsoleColors.RED + "Bye, bye.");
+        System.out.println(ConsoleColors.RED + "Bye, bye");
     }
 }
-
-
